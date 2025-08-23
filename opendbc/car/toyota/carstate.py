@@ -221,7 +221,9 @@ class CarState(CarStateBase, CarStateExt):
       ret.cruiseState.speedCluster = cluster_set_speed * conversion_factor
 
     if self.CP.carFingerprint in TSS2_CAR and not self.CP.flags & ToyotaFlags.DISABLE_RADAR.value:
-      self.acc_type = cp_acc.vl["ACC_CONTROL"]["ACC_TYPE"]
+      #self.acc_type = cp_acc.vl["ACC_CONTROL"]["ACC_TYPE"]
+      if not (self.CP.flags & ToyotaFlags.SMART_DSU.value):
+        self.acc_type = cp_acc.vl["ACC_CONTROL"]["ACC_TYPE"]
       ret.stockFcw = bool(cp_acc.vl["PCS_HUD"]["FCW"])
 
     # some TSS2 cars have low speed lockout permanently set, so ignore on those cars
@@ -336,6 +338,10 @@ class CarState(CarStateBase, CarStateExt):
       ("RSA1", 0),
       ("RSA2", 0),
     ]
+    if not CP.flags & ToyotaFlags.SMART_DSU.value:
+        pt_messages += [
+          ("ACC_CONTROL", 33),
+        ]
 
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, 0),
